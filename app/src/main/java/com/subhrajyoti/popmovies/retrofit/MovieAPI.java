@@ -1,7 +1,7 @@
-package com.subhrajyoti.myapplication.Retrofit;
+package com.subhrajyoti.popmovies.retrofit;
 
-import com.subhrajyoti.myapplication.BuildConfig;
-import com.subhrajyoti.myapplication.MovieModel;
+import com.subhrajyoti.popmovies.BuildConfig;
+import com.subhrajyoti.popmovies.models.MovieModel;
 
 import java.util.List;
 

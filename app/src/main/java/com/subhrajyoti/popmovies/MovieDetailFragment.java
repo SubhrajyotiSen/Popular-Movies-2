@@ -1,4 +1,4 @@
-package com.subhrajyoti.myapplication;
+package com.subhrajyoti.popmovies;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -12,6 +12,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.subhrajyoti.popmovies.models.MovieModel;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;

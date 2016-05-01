@@ -1,4 +1,4 @@
-package com.subhrajyoti.myapplication;
+package com.subhrajyoti.popmovies;
 
 import org.junit.Test;
 

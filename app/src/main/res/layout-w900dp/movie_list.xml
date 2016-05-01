@@ -9,7 +9,7 @@
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="horizontal"
     android:showDividers="middle"
-    tools:context="com.subhrajyoti.myapplication.MovieListActivity">
+    tools:context="com.subhrajyoti.popmovies.MovieListActivity">
 
     <!--
     This layout is a two-pane layout for the Movies
@@ -25,7 +25,7 @@
         android:layout_weight="2"
         android:layout_height="match_parent"
         app:layoutManager="LinearLayoutManager"
-        tools:context="com.subhrajyoti.myapplication.MovieListActivity" />
+        tools:context="com.subhrajyoti.popmovies.MovieListActivity" />
 
 
 

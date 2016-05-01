@@ -1,4 +1,4 @@
-package com.subhrajyoti.myapplication;
+package com.subhrajyoti.popmovies;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -7,7 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Picasso;;
+import com.squareup.picasso.Picasso;
+import com.subhrajyoti.popmovies.models.MovieModel;;
 
 import java.util.ArrayList;
 

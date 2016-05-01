@@ -1,18 +1,16 @@
-package com.subhrajyoti.myapplication;
+package com.subhrajyoti.popmovies;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
+import com.subhrajyoti.popmovies.models.MovieModel;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -33,15 +31,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         MovieModel movieModel =  getIntent().getParcelableExtra("movie");
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        if (fab!=null)
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                }
-            });
+
 
         setSupportActionBar(toolbar);
         if(getSupportActionBar() != null){

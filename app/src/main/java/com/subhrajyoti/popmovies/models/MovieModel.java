@@ -1,9 +1,11 @@
-package com.subhrajyoti.myapplication;
+package com.subhrajyoti.popmovies.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class MovieModel implements Parcelable {
+import io.realm.RealmObject;
+
+public class MovieModel extends RealmObject implements Parcelable{
 
     private String release_date;
     private String original_title;
@@ -11,6 +13,21 @@ public class MovieModel implements Parcelable {
     private String overview;
     private float vote_average;
     private String backdrop_path;
+    private String movie_id;
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    private String tag;
+
+    public MovieModel(){
+
+    }
 
     @Override
     public int describeContents() {
@@ -26,6 +43,7 @@ public class MovieModel implements Parcelable {
         dest.writeString(backdrop_path);
         dest.writeString(overview);
         dest.writeString(release_date);
+        dest.writeString(movie_id);
 
     }
 
@@ -36,6 +54,7 @@ public class MovieModel implements Parcelable {
         backdrop_path = in.readString();
         overview = in.readString();
         release_date = in.readString();
+        movie_id = in.readString();
     }
 
     public static final Creator<MovieModel> CREATOR = new Creator<MovieModel>() {
@@ -84,6 +103,10 @@ public class MovieModel implements Parcelable {
 
     public String getBackdrop_path() {
         return backdrop_path;
+    }
+
+    public String getMovie_id() {
+        return movie_id;
     }
 
 

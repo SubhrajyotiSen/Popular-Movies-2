@@ -1,4 +1,4 @@
-package com.subhrajyoti.myapplication;
+package com.subhrajyoti.popmovies;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
