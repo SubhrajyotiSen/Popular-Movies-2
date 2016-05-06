@@ -14,8 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
-import com.afollestad.materialdialogs.MaterialDialog;
+import android.widget.ProgressBar;
 import com.subhrajyoti.popmovies.application.App;
 import com.subhrajyoti.popmovies.models.MovieModel;
 import com.subhrajyoti.popmovies.retrofit.MovieAPI;
@@ -35,12 +34,12 @@ public class MovieListActivity extends AppCompatActivity {
 
     @Bind(R.id.recyclerView)
     RecyclerView recyclerView;
-    MainAdapter mainAdapter;
-    MainAdapter secondAdapter;
-    static ArrayList<MovieModel> popularList;
-    static ArrayList<MovieModel> ratedList;
+    static ProgressBar progressBar;
+    MovieAdapter mainAdapter;
+    MovieAdapter secondAdapter;
+    ArrayList<MovieModel> popularList;
+    ArrayList<MovieModel> ratedList;
     GridLayoutManager gridLayoutManager;
-    MaterialDialog dialog;
     boolean popular;
     private boolean mTwoPane;
     Realm realm = Realm.getDefaultInstance();
@@ -50,6 +49,7 @@ public class MovieListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_list);
         ButterKnife.bind(this);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -59,7 +59,6 @@ public class MovieListActivity extends AppCompatActivity {
         setupRecyclerView();
         realm.beginTransaction();
         if (isNetworkAvailable()) {
-            displayDialog();
             realm.deleteAll();
             realm.commitTransaction();
             getMovies("popular");
@@ -121,7 +120,6 @@ public class MovieListActivity extends AppCompatActivity {
                         Log.v(sort, response.body().results.get(i).getoriginal_title());
                     }
                     mainAdapter.notifyDataSetChanged();
-                    dialog.dismiss();
                 }
                 else {
                     for (int i = 0; i < response.body().results.size(); i++) {
@@ -144,13 +142,6 @@ public class MovieListActivity extends AppCompatActivity {
 
     }
 
-    public void displayDialog(){
-        MaterialDialog.Builder builder = new MaterialDialog.Builder(this)
-                .content("Fetching Movies").progress(true, 0);
-
-        dialog = builder.build();
-        dialog.show();
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -209,8 +200,8 @@ public class MovieListActivity extends AppCompatActivity {
             gridLayoutManager.setSpanCount(2);
         else
             gridLayoutManager.setSpanCount(3);
-        mainAdapter = new MainAdapter(this,popularList);
-        secondAdapter = new MainAdapter(this,ratedList);
+        mainAdapter = new MovieAdapter(this,popularList);
+        secondAdapter = new MovieAdapter(this,ratedList);
         recyclerView.setAdapter(mainAdapter);
         recyclerView.setLayoutManager(gridLayoutManager);
     }

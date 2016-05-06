@@ -7,18 +7,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-import com.subhrajyoti.popmovies.models.MovieModel;;
+import com.subhrajyoti.popmovies.models.MovieModel;
 
 import java.util.ArrayList;
 
-public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     Context context;
     ArrayList<MovieModel> data = new ArrayList<>();
 
 
-    public MainAdapter(Context context, ArrayList<MovieModel> data) {
+    public MovieAdapter(Context context, ArrayList<MovieModel> data) {
         this.context = context;
         this.data = data;
     }
@@ -38,7 +39,18 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
 
-        Picasso.with(context).load(BuildConfig.IMAGE_URL+"/w342" + data.get(position).getposter_path() + "?api_key?=" + BuildConfig.API_KEY).placeholder(R.drawable.placeholder).into(((MyItemHolder) holder).imageView);
+        String imageURL = BuildConfig.IMAGE_URL+"/w342" + data.get(position).getposter_path() + "?api_key?=" + BuildConfig.API_KEY;
+        Picasso.with(context).load(imageURL).into(((MyItemHolder) holder).imageView, new Callback() {
+            @Override
+            public void onSuccess() {
+                MovieListActivity.progressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
 
 
     }
