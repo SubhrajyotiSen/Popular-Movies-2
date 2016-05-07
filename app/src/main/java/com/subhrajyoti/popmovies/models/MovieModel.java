@@ -15,18 +15,19 @@ public class MovieModel extends RealmObject implements Parcelable{
     private String backdrop_path;
     private String id;
 
-    public String getTag() {
-        return tag;
-    }
-
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
-
-    private String tag;
 
     public MovieModel(){
 
+    }
+
+    public MovieModel(MovieModel movieModel){
+        release_date = movieModel.release_date;
+        original_title = movieModel.original_title;
+        poster_path = movieModel.poster_path;
+        overview = movieModel.overview;
+        vote_average = movieModel.vote_average;
+        backdrop_path = movieModel.backdrop_path;
+        id = movieModel.id;
     }
 
     @Override

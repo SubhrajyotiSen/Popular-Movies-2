@@ -1,5 +1,6 @@
 package com.subhrajyoti.popmovies;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -61,6 +62,17 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         return true;
     }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case android.R.id.home:
+                supportFinishAfterTransition();
+                super.onBackPressed();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
 
 }

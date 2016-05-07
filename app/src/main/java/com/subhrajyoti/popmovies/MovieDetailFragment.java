@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -33,6 +32,7 @@ import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import io.realm.Realm;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
@@ -65,6 +65,7 @@ public class MovieDetailFragment extends Fragment {
     ArrayList<ReviewModel> reviewList;
     ReviewAdapter reviewAdapter;
     TrailerAdapter trailerAdapter;
+    Realm realm = Realm.getDefaultInstance();
 
 
 
@@ -97,6 +98,7 @@ public class MovieDetailFragment extends Fragment {
 
         titleView.setText(movieModel.getoriginal_title());
 
+
         Picasso.with(getActivity()).load(BuildConfig.IMAGE_URL+"/w342" + movieModel.getposter_path() + "?api_key?=" + BuildConfig.API_KEY).placeholder(R.drawable.placeholder).error(R.drawable.placeholder).into(imageView);
 
         rating.setText(Float.toString(movieModel.getvote_average()).concat("/10"));
@@ -128,9 +130,6 @@ public class MovieDetailFragment extends Fragment {
             }
 
         }));
-
-
-
         return rootView;
     }
 
@@ -174,20 +173,52 @@ public class MovieDetailFragment extends Fragment {
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+        MenuItem item = menu.findItem(R.id.fav);
+        item.setIcon(isFavourite() ? R.drawable.fav_remove : R.drawable.fav_add);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.share){
-            Intent share = new Intent(android.content.Intent.ACTION_SEND);
-            share.setType("text/plain");
-            share.putExtra(Intent.EXTRA_SUBJECT, movieModel.getoriginal_title());
-            share.putExtra(Intent.EXTRA_TEXT, "https://www.youtube.com/watch?v=".concat(trailerList.get(0).getKey()));
-            startActivity(Intent.createChooser(share, "Share Trailer!"));
+        switch (id) {
+            case R.id.share:
+                Intent share = new Intent(android.content.Intent.ACTION_SEND);
+                share.setType("text/plain");
+                share.putExtra(Intent.EXTRA_SUBJECT, movieModel.getoriginal_title());
+                share.putExtra(Intent.EXTRA_TEXT, "https://www.youtube.com/watch?v=".concat(trailerList.get(0).getKey()));
+                startActivity(Intent.createChooser(share, "Share Trailer!"));
+                break;
+
+
+            case R.id.fav:
+                if (realm.isInTransaction())
+                    realm.cancelTransaction();
+                if (!isFavourite()) {
+                    realm.beginTransaction();
+                    item.setIcon(R.drawable.fav_remove);
+                    realm.copyToRealm(movieModel);
+                    realm.commitTransaction();
+
+                } else {
+                    realm.beginTransaction();
+                    item.setIcon(R.drawable.fav_add);
+                    realm.where(MovieModel.class).contains("id", movieModel.getId()).findFirst().deleteFromRealm();
+                    realm.commitTransaction();
+
+                }
+                break;
+
+
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private boolean isFavourite(){
+
+        return realm.where(MovieModel.class).contains("id", movieModel.getId()).findAll().size() != 0;
+    }
+
+
 
 
 }

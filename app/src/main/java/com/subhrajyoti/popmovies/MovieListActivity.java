@@ -32,21 +32,23 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 
-public class MovieListActivity extends AppCompatActivity {
+public class MovieListActivity extends AppCompatActivity{
 
     @Bind(R.id.recyclerView)
     RecyclerView recyclerView;
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     public static ProgressBar progressBar;
-    MovieAdapter mainAdapter;
-    MovieAdapter secondAdapter;
+    MovieAdapter popularAdapter;
+    MovieAdapter ratedAdapter;
+    MovieAdapter favouriteAdapter;
     ArrayList<MovieModel> popularList;
     ArrayList<MovieModel> ratedList;
+    ArrayList<MovieModel> favList;
     GridLayoutManager gridLayoutManager;
-    boolean popular;
     private boolean mTwoPane;
     Realm realm = Realm.getDefaultInstance();
+    String SORT_BY = "POPULAR";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,24 +59,22 @@ public class MovieListActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         popularList = new ArrayList<>();
         ratedList = new ArrayList<>();
-        popular = false;
+        favList = new ArrayList<>();
         setupRecyclerView();
         if (savedInstanceState!=null)
         {
-            mainAdapter.addAll(savedInstanceState.<MovieModel>getParcelableArrayList("POP"));
-            secondAdapter.addAll(savedInstanceState.<MovieModel>getParcelableArrayList("RATED"));
+            popularAdapter.addAll(savedInstanceState.<MovieModel>getParcelableArrayList("POP"));
+            ratedAdapter.addAll(savedInstanceState.<MovieModel>getParcelableArrayList("RATED"));
         }
         else {
-            realm.beginTransaction();
             if (isNetworkAvailable()) {
-                realm.deleteAll();
-                realm.commitTransaction();
+
                 getMovies("popular");
                 getMovies("top_rated");
             } else {
-                parseRealm("popular");
-                parseRealm("rated");
+
             }
+            getFavourites();
         }
         if (findViewById(R.id.movie_detail_container) != null) {
 
@@ -84,10 +84,13 @@ public class MovieListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(View view, int position) {
                 MovieModel movieModel;
-                if (!popular) {
+                if (SORT_BY.equals("POPULAR")) {
                     movieModel = popularList.get(position);
-                } else {
+                } else if (SORT_BY.equals("RATED")){
                     movieModel = ratedList.get(position);
+                }
+                else {
+                    movieModel = favList.get(position);
                 }
 
                 if (mTwoPane) {
@@ -113,31 +116,24 @@ public class MovieListActivity extends AppCompatActivity {
 
     private void getMovies(final String sort) {
 
-        final Realm realm = Realm.getDefaultInstance();
         App.getMovieClient().getMovieAPI().loadMovies(sort, BuildConfig.API_KEY).enqueue(new Callback<MovieAPI.Movies>() {
 
             @Override
             public void onResponse(Response<MovieAPI.Movies> response, Retrofit retrofit) {
-                realm.beginTransaction();
+
                 if (sort.equals("popular")) {
                     for (int i = 0; i < response.body().results.size(); i++) {
-                        response.body().results.get(i).setTag("Popular");
                         popularList.add(response.body().results.get(i));
-                        realm.copyToRealm(response.body().results.get(i));
                         Log.v(sort, response.body().results.get(i).getoriginal_title());
                     }
-                    mainAdapter.notifyDataSetChanged();
+                    popularAdapter.notifyDataSetChanged();
                 } else {
                     for (int i = 0; i < response.body().results.size(); i++) {
-                        response.body().results.get(i).setTag("Rated");
                         ratedList.add(response.body().results.get(i));
-                        realm.copyToRealm(response.body().results.get(i));
                         Log.v(sort, response.body().results.get(i).getoriginal_title());
                     }
-                    secondAdapter.notifyDataSetChanged();
+                    ratedAdapter.notifyDataSetChanged();
                 }
-                realm.commitTransaction();
-
             }
 
             @Override
@@ -164,13 +160,18 @@ public class MovieListActivity extends AppCompatActivity {
 
         switch (id) {
             case R.id.action_sort_by_rating:
-                recyclerView.setAdapter(secondAdapter);
-                popular = true;
+                recyclerView.setAdapter(ratedAdapter);
+                SORT_BY = "RATED";
                 break;
             case R.id.action_sort_by_popularity:
-                recyclerView.setAdapter(mainAdapter);
-                popular = false;
+                recyclerView.setAdapter(popularAdapter);
+                SORT_BY = "POPULAR";
                 break;
+            case R.id.action_sort_by_favourite:
+                recyclerView.setAdapter(favouriteAdapter);
+                SORT_BY = "FAVOURITE";
+                break;
+
 
         }
         item.setChecked(true);
@@ -205,30 +206,21 @@ public class MovieListActivity extends AppCompatActivity {
             gridLayoutManager.setSpanCount(2);
         else
             gridLayoutManager.setSpanCount(3);
-        mainAdapter = new MovieAdapter(this, popularList);
-        secondAdapter = new MovieAdapter(this, ratedList);
-        recyclerView.setAdapter(mainAdapter);
+        popularAdapter = new MovieAdapter(this, popularList);
+        ratedAdapter = new MovieAdapter(this, ratedList);
+        favouriteAdapter = new MovieAdapter(this,favList);
+        recyclerView.setAdapter(popularAdapter);
         recyclerView.setLayoutManager(gridLayoutManager);
     }
 
-    public void parseRealm(String sort) {
-
-        if (sort.equals("popular")) {
-            RealmResults<MovieModel> realmResults = realm.where(MovieModel.class).contains("tag", "Popular").findAll();
+    public void getFavourites() {
+            RealmResults<MovieModel> realmResults = realm.where(MovieModel.class).findAll();
             Log.d("Size", String.valueOf(realmResults.size()));
             for (int i = 0; i < realmResults.size(); i++) {
-                popularList.add(realmResults.get(i));
-                Log.d("pop add", realmResults.get(i).getoriginal_title());
+                favList.add(realmResults.get(i));
+                Log.d("fav add", realmResults.get(i).getoriginal_title());
             }
-            mainAdapter.notifyDataSetChanged();
-
-        } else {
-            RealmResults<MovieModel> realmResults = realm.where(MovieModel.class).contains("tag", "Rated").findAll();
-            for (int i = 0; i < realmResults.size(); i++)
-                ratedList.add(realmResults.get(i));
-            secondAdapter.notifyDataSetChanged();
-        }
-
+            favouriteAdapter.notifyDataSetChanged();
     }
 
     @Override

@@ -26,13 +26,9 @@
         <activity
             android:name="com.subhrajyoti.popmovies.MovieDetailActivity"
             android:label="@string/title_movie_detail"
-            android:parentActivityName="com.subhrajyoti.popmovies.MovieListActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.subhrajyoti.popmovies.MovieListActivity" />
-        </activity>
 
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
 
     </application>
 

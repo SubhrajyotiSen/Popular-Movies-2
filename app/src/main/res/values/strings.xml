@@ -4,11 +4,14 @@
     <string name="action_settings">Settings</string>
     <string name="sort_option_popularity">Popularity</string>
     <string name="sort_option_rated">Highest rated</string>
+    <string name="sort_option_favourite">Favourites</string>
     <string name="sort_menu">Sort By</string>
     <string name="title_activity_details">DetailsActivity</string>
     <string name="title_movie_list">Movies</string>
     <string name="overview_header">Overiew</string>
     <string name="trailers_header">Trailers</string>
     <string name="share_menu">Share</string>
+    <string name="fav_button_add">Add as favourite</string>
+    <string name="fav_button_remove">Remove from favourite</string>
 
 </resources>
