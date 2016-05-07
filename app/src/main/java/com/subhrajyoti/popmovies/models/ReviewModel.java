@@ -4,21 +4,13 @@ package com.subhrajyoti.popmovies.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import io.realm.RealmObject;
+public class ReviewModel  implements Parcelable {
 
-public class ReviewModel extends RealmObject implements Parcelable {
-
-    public ReviewModel(){
-
-    }
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
     private String id;
 
@@ -26,9 +18,6 @@ public class ReviewModel extends RealmObject implements Parcelable {
         return content;
     }
 
-    public void setcontent(String content) {
-        this.content = content;
-    }
 
     private String content;
 
@@ -36,11 +25,14 @@ public class ReviewModel extends RealmObject implements Parcelable {
         return author;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
 
     private String author;
+
+    public String getUrl() {
+        return url;
+    }
+
+    private String url;
 
     @Override
     public int describeContents() {

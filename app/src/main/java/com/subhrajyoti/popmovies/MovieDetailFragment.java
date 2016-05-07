@@ -3,6 +3,7 @@ package com.subhrajyoti.popmovies;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
@@ -29,6 +30,7 @@ import com.subhrajyoti.popmovies.models.TrailerModel;
 import com.subhrajyoti.popmovies.retrofit.MovieAPI;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -86,8 +88,8 @@ public class MovieDetailFragment extends Fragment {
         }
         trailerList = new ArrayList<>();
         reviewList = new ArrayList<>();
-        getReviews(movieModel.getId());
-        getTrailers(movieModel.getId());
+        (new FetchReviews()).execute(movieModel.getId());
+        (new FetchTrailers()).execute(movieModel.getId());
     }
 
     @Override
@@ -130,46 +132,18 @@ public class MovieDetailFragment extends Fragment {
             }
 
         }));
+
+        reviewsRecyclerView.addOnItemTouchListener(new RecyclerClickListener(getContext(), new RecyclerClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(reviewList.get(position).getUrl()));
+                startActivity(i);
+            }
+        }));
         return rootView;
     }
 
-    private void getTrailers(final String id) {
-        App.getMovieClient().getMovieAPI().loadTrailers(id, BuildConfig.API_KEY).enqueue(new Callback<MovieAPI.Trailers>() {
-            @Override
-            public void onResponse(Response<MovieAPI.Trailers> response, Retrofit retrofit) {
-                Log.v("Trailers",String.valueOf(response.body().results.size()));
-                for (int i = 0; i < response.body().results.size(); i++) {
-                    trailerList.add(response.body().results.get(i));
-                    Log.v(id, response.body().results.get(i).getKey());
-                }
-                trailerAdapter.notifyDataSetChanged();
-            }
-            @Override
-            public void onFailure(Throwable t) {
-
-                Log.v("Trailers","Fail");
-
-
-            }
-        });
-    }
-
-    private void getReviews(final String id) {
-        App.getMovieClient().getMovieAPI().loadReviews(id, BuildConfig.API_KEY).enqueue(new Callback<MovieAPI.Reviews>() {
-            @Override
-            public void onResponse(Response<MovieAPI.Reviews> response, Retrofit retrofit) {
-                for (int i = 0; i < response.body().results.size(); i++) {
-                    reviewList.add(response.body().results.get(i));
-                    Log.v(id, response.body().results.get(i).getAuthor());
-                }
-                trailerAdapter.notifyDataSetChanged();
-            }
-            @Override
-            public void onFailure(Throwable t) {
-
-            }
-        });
-    }
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
@@ -219,6 +193,82 @@ public class MovieDetailFragment extends Fragment {
     private boolean isFavourite(){
 
         return realm.where(MovieModel.class).contains("id", movieModel.getId()).findAll().size() != 0;
+    }
+
+    private class FetchReviews extends AsyncTask<String, Void,
+            List<ReviewModel>> {
+
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected List<ReviewModel> doInBackground(String... params) {
+            final String sort = params[0];
+            App.getMovieClient().getMovieAPI().loadReviews(sort, BuildConfig.API_KEY).enqueue(new Callback<MovieAPI.Reviews>() {
+
+                @Override
+                public void onResponse(Response<MovieAPI.Reviews> response, Retrofit retrofit) {
+
+                    for (int i = 0; i < response.body().results.size(); i++) {
+                        reviewList.add(response.body().results.get(i));
+                    }
+                    reviewAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+
+                }
+            });
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(List<ReviewModel> movieModels) {
+            super.onPostExecute(movieModels);
+        }
+    }
+
+    private class FetchTrailers extends AsyncTask<String, Void,
+            List<TrailerModel>> {
+
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected List<TrailerModel> doInBackground(String... params) {
+            final String sort = params[0];
+            App.getMovieClient().getMovieAPI().loadTrailers(sort, BuildConfig.API_KEY).enqueue(new Callback<MovieAPI.Trailers>() {
+
+                @Override
+                public void onResponse(Response<MovieAPI.Trailers> response, Retrofit retrofit) {
+
+                    for (int i = 0; i < response.body().results.size(); i++) {
+                        trailerList.add(response.body().results.get(i));
+                    }
+                    trailerAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+
+                }
+            });
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(List<TrailerModel> movieModels) {
+            super.onPostExecute(movieModels);
+        }
     }
 
 

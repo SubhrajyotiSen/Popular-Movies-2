@@ -8,8 +8,9 @@
     <string name="sort_menu">Sort By</string>
     <string name="title_activity_details">DetailsActivity</string>
     <string name="title_movie_list">Movies</string>
-    <string name="overview_header">Overiew</string>
+    <string name="overview_header">Overview</string>
     <string name="trailers_header">Trailers</string>
+    <string name="reviews_header">Reviews</string>
     <string name="share_menu">Share</string>
     <string name="fav_button_add">Add as favourite</string>
     <string name="fav_button_remove">Remove from favourite</string>

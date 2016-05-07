@@ -3,31 +3,18 @@ package com.subhrajyoti.popmovies.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import io.realm.RealmObject;
 
+public class TrailerModel  implements Parcelable {
 
-public class TrailerModel extends RealmObject implements Parcelable {
-
-    public TrailerModel(){
-
-    }
 
     public String getId() {
         return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     private String id;
 
     public String getKey() {
         return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
     }
 
     private String key;
@@ -42,8 +29,6 @@ public class TrailerModel extends RealmObject implements Parcelable {
 
         dest.writeString(id);
         dest.writeString(key);
-
-
     }
 
     protected TrailerModel(Parcel in) {

@@ -6,11 +6,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.subhrajyoti.popmovies.R;
 import com.subhrajyoti.popmovies.models.ReviewModel;
 
 import java.util.ArrayList;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 public class ReviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -29,7 +33,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         RecyclerView.ViewHolder viewHolder;
         View v;
         v = LayoutInflater.from(parent.getContext()).inflate(
-                R.layout.grid_image, parent, false);
+                R.layout.review_list_item, parent, false);
         viewHolder = new MyItemHolder(v);
 
         return viewHolder;
@@ -38,7 +42,8 @@ public class ReviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
 
-
+        ((MyItemHolder) holder).authorText.setText(data.get(position).getAuthor());
+        ((MyItemHolder) holder).reviewText.setText(data.get(position).getcontent());
 
     }
 
@@ -48,20 +53,19 @@ public class ReviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     public static class MyItemHolder extends RecyclerView.ViewHolder {
-        ImageView imageView;
+        @Bind(R.id.authorText)
+        TextView authorText;
+        @Bind(R.id.reviewText)
+        TextView reviewText;
 
 
         public MyItemHolder(View itemView) {
             super(itemView);
+            ButterKnife.bind(this,itemView);
 
-            imageView = (ImageView) itemView.findViewById(R.id.listImage);
         }
 
     }
 
-    public void addAll(ArrayList<ReviewModel> list){
-        for (int i = 0; i < list.size(); i++)
-            data.add(list.get(i));
-    }
 
 }

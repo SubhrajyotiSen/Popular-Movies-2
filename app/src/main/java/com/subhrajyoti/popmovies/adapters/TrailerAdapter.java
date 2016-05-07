@@ -64,9 +64,5 @@ public class TrailerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     }
 
-    public void addAll(ArrayList<TrailerModel> list){
-        for (int i = 0; i < list.size(); i++)
-            data.add(list.get(i));
-    }
 
 }

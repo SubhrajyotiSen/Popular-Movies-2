@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -22,6 +23,7 @@ import com.subhrajyoti.popmovies.models.MovieModel;
 import com.subhrajyoti.popmovies.retrofit.MovieAPI;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -70,8 +72,8 @@ public class MovieListActivity extends AppCompatActivity{
         else {
             if (isNetworkAvailable()) {
 
-                getMovies("popular");
-                getMovies("top_rated");
+                (new FetchMovies()).execute("popular");
+                (new FetchMovies()).execute("top_rated");
             } else {
 
             }
@@ -123,35 +125,55 @@ public class MovieListActivity extends AppCompatActivity{
 
     }
 
-    private void getMovies(final String sort) {
+    private class FetchMovies extends AsyncTask<String, Void,
+                List<MovieModel>> {
 
-        App.getMovieClient().getMovieAPI().loadMovies(sort, BuildConfig.API_KEY).enqueue(new Callback<MovieAPI.Movies>() {
 
-            @Override
-            public void onResponse(Response<MovieAPI.Movies> response, Retrofit retrofit) {
+        @Override
+        protected void onPreExecute() {
 
-                if (sort.equals("popular")) {
-                    for (int i = 0; i < response.body().results.size(); i++) {
-                        popularList.add(response.body().results.get(i));
-                        Log.v(sort, response.body().results.get(i).getoriginal_title());
+        }
+
+        @Override
+        protected List<MovieModel> doInBackground(String... params) {
+            final String sort = params[0];
+            App.getMovieClient().getMovieAPI().loadMovies(sort, BuildConfig.API_KEY).enqueue(new Callback<MovieAPI.Movies>() {
+
+                @Override
+                public void onResponse(Response<MovieAPI.Movies> response, Retrofit retrofit) {
+
+                    if (sort.equals("popular")) {
+                        for (int i = 0; i < response.body().results.size(); i++) {
+                            popularList.add(response.body().results.get(i));
+                            Log.v(sort, response.body().results.get(i).getoriginal_title());
+                        }
+                        popularAdapter.notifyDataSetChanged();
+                    } else {
+                        for (int i = 0; i < response.body().results.size(); i++) {
+                            ratedList.add(response.body().results.get(i));
+                            Log.v(sort, response.body().results.get(i).getoriginal_title());
+                        }
+                        ratedAdapter.notifyDataSetChanged();
                     }
-                    popularAdapter.notifyDataSetChanged();
-                } else {
-                    for (int i = 0; i < response.body().results.size(); i++) {
-                        ratedList.add(response.body().results.get(i));
-                        Log.v(sort, response.body().results.get(i).getoriginal_title());
-                    }
-                    ratedAdapter.notifyDataSetChanged();
                 }
-            }
 
-            @Override
-            public void onFailure(Throwable t) {
+                @Override
+                public void onFailure(Throwable t) {
 
-            }
-        });
+                }
+            });
 
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(List<MovieModel> movieModels) {
+            super.onPostExecute(movieModels);
+        }
     }
+
+
+
 
 
     @Override
