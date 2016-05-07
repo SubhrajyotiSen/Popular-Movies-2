@@ -10,6 +10,7 @@
         android:layout_height="match_parent"
         tools:context="com.subhrajyoti.popmovies.MovieListActivity" />
 
+
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"

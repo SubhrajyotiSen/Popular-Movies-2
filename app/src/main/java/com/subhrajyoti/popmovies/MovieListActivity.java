@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import retrofit.Callback;
 import retrofit.Response;
@@ -74,23 +75,31 @@ public class MovieListActivity extends AppCompatActivity{
             } else {
 
             }
-            getFavourites();
         }
         if (findViewById(R.id.movie_detail_container) != null) {
 
             mTwoPane = true;
         }
+        realm.addChangeListener(new RealmChangeListener() {
+            @Override
+            public void onChange() {
+                getFavourites();
+            }
+        });
         recyclerView.addOnItemTouchListener(new RecyclerClickListener(this, new RecyclerClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 MovieModel movieModel;
-                if (SORT_BY.equals("POPULAR")) {
-                    movieModel = popularList.get(position);
-                } else if (SORT_BY.equals("RATED")){
-                    movieModel = ratedList.get(position);
-                }
-                else {
-                    movieModel = favList.get(position);
+                switch (SORT_BY) {
+                    case "POPULAR":
+                        movieModel = popularList.get(position);
+                        break;
+                    case "RATED":
+                        movieModel = ratedList.get(position);
+                        break;
+                    default:
+                        movieModel = favList.get(position);
+                        break;
                 }
 
                 if (mTwoPane) {
@@ -170,6 +179,7 @@ public class MovieListActivity extends AppCompatActivity{
             case R.id.action_sort_by_favourite:
                 recyclerView.setAdapter(favouriteAdapter);
                 SORT_BY = "FAVOURITE";
+                getFavourites();
                 break;
 
 
@@ -216,11 +226,13 @@ public class MovieListActivity extends AppCompatActivity{
     public void getFavourites() {
             RealmResults<MovieModel> realmResults = realm.where(MovieModel.class).findAll();
             Log.d("Size", String.valueOf(realmResults.size()));
+            favList.clear();
             for (int i = 0; i < realmResults.size(); i++) {
                 favList.add(realmResults.get(i));
                 Log.d("fav add", realmResults.get(i).getoriginal_title());
             }
             favouriteAdapter.notifyDataSetChanged();
+        Log.d("Array Size",String.valueOf(favList.size()));
     }
 
     @Override

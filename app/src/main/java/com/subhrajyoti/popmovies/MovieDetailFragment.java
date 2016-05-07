@@ -173,8 +173,10 @@ public class MovieDetailFragment extends Fragment {
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+        menu.findItem(R.id.share).setVisible(true);
         MenuItem item = menu.findItem(R.id.fav);
-        item.setIcon(isFavourite() ? R.drawable.fav_remove : R.drawable.fav_add);
+        item.setVisible(true);
+        item.setIcon(!isFavourite() ? R.drawable.fav_remove : R.drawable.fav_add);
     }
 
     @Override
@@ -195,13 +197,14 @@ public class MovieDetailFragment extends Fragment {
                     realm.cancelTransaction();
                 if (!isFavourite()) {
                     realm.beginTransaction();
-                    item.setIcon(R.drawable.fav_remove);
+                    item.setIcon(R.drawable.fav_add);
+
                     realm.copyToRealm(movieModel);
                     realm.commitTransaction();
 
                 } else {
                     realm.beginTransaction();
-                    item.setIcon(R.drawable.fav_add);
+                    item.setIcon(R.drawable.fav_remove);
                     realm.where(MovieModel.class).contains("id", movieModel.getId()).findFirst().deleteFromRealm();
                     realm.commitTransaction();
 
