@@ -1,10 +1,19 @@
 package com.subhrajyoti.popmovies;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -12,10 +21,21 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.subhrajyoti.popmovies.adapters.ReviewAdapter;
+import com.subhrajyoti.popmovies.adapters.TrailerAdapter;
+import com.subhrajyoti.popmovies.application.App;
 import com.subhrajyoti.popmovies.models.MovieModel;
+import com.subhrajyoti.popmovies.models.ReviewModel;
+import com.subhrajyoti.popmovies.models.TrailerModel;
+import com.subhrajyoti.popmovies.retrofit.MovieAPI;
+
+import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 
 
 public class MovieDetailFragment extends Fragment {
@@ -37,12 +57,21 @@ public class MovieDetailFragment extends Fragment {
     TextView overview;
     @Bind(R.id.releaseText)
     TextView releaseText;
+    @Bind(R.id.trailersRecyclerView)
+    RecyclerView trailersRecyclerView;
+    @Bind(R.id.reviewsRecyclerView)
+    RecyclerView reviewsRecyclerView;
+    ArrayList<TrailerModel> trailerList;
+    ArrayList<ReviewModel> reviewList;
+    ReviewAdapter reviewAdapter;
+    TrailerAdapter trailerAdapter;
 
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
 
         if (getArguments().containsKey("movie")) {
 
@@ -53,9 +82,11 @@ public class MovieDetailFragment extends Fragment {
            }
             movieModel = getArguments().getParcelable("movie");
             assert movieModel != null;
-
-
         }
+        trailerList = new ArrayList<>();
+        reviewList = new ArrayList<>();
+        getReviews(movieModel.getId());
+        getTrailers(movieModel.getId());
     }
 
     @Override
@@ -63,9 +94,6 @@ public class MovieDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.movie_detail, container, false);
         ButterKnife.bind(this,rootView);
-
-
-
 
         titleView.setText(movieModel.getoriginal_title());
 
@@ -78,6 +106,88 @@ public class MovieDetailFragment extends Fragment {
         overview.setText(movieModel.getOverview());
         releaseText.setText("Release Date: ".concat(movieModel.getrelease_date()));
 
+        LinearLayoutManager trailerLayoutManager = new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false);
+        LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(getContext());
+
+        trailersRecyclerView.setLayoutManager(trailerLayoutManager);
+        reviewsRecyclerView.setLayoutManager(reviewLayoutManager);
+
+        reviewAdapter = new ReviewAdapter(getContext(),reviewList);
+        trailerAdapter = new TrailerAdapter(getContext(),trailerList);
+
+        trailersRecyclerView.setAdapter(trailerAdapter);
+        reviewsRecyclerView.setAdapter(reviewAdapter);
+
+        trailersRecyclerView.addOnItemTouchListener(new RecyclerClickListener(getContext(), new RecyclerClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                String url = "https://www.youtube.com/watch?v=".concat(trailerList.get(position).getKey());
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
+            }
+
+        }));
+
+
+
         return rootView;
     }
+
+    private void getTrailers(final String id) {
+        App.getMovieClient().getMovieAPI().loadTrailers(id, BuildConfig.API_KEY).enqueue(new Callback<MovieAPI.Trailers>() {
+            @Override
+            public void onResponse(Response<MovieAPI.Trailers> response, Retrofit retrofit) {
+                Log.v("Trailers",String.valueOf(response.body().results.size()));
+                for (int i = 0; i < response.body().results.size(); i++) {
+                    trailerList.add(response.body().results.get(i));
+                    Log.v(id, response.body().results.get(i).getKey());
+                }
+                trailerAdapter.notifyDataSetChanged();
+            }
+            @Override
+            public void onFailure(Throwable t) {
+
+                Log.v("Trailers","Fail");
+
+
+            }
+        });
+    }
+
+    private void getReviews(final String id) {
+        App.getMovieClient().getMovieAPI().loadReviews(id, BuildConfig.API_KEY).enqueue(new Callback<MovieAPI.Reviews>() {
+            @Override
+            public void onResponse(Response<MovieAPI.Reviews> response, Retrofit retrofit) {
+                for (int i = 0; i < response.body().results.size(); i++) {
+                    reviewList.add(response.body().results.get(i));
+                    Log.v(id, response.body().results.get(i).getAuthor());
+                }
+                trailerAdapter.notifyDataSetChanged();
+            }
+            @Override
+            public void onFailure(Throwable t) {
+
+            }
+        });
+    }
+
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.share){
+            Intent share = new Intent(android.content.Intent.ACTION_SEND);
+            share.setType("text/plain");
+            share.putExtra(Intent.EXTRA_SUBJECT, movieModel.getoriginal_title());
+            share.putExtra(Intent.EXTRA_TEXT, "https://www.youtube.com/watch?v=".concat(trailerList.get(0).getKey()));
+            startActivity(Intent.createChooser(share, "Share Trailer!"));
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
 }

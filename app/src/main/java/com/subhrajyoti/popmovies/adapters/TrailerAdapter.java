@@ -1,4 +1,4 @@
-package com.subhrajyoti.popmovies;
+package com.subhrajyoti.popmovies.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -7,19 +7,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-import com.subhrajyoti.popmovies.models.MovieModel;
+import com.subhrajyoti.popmovies.R;
+import com.subhrajyoti.popmovies.models.TrailerModel;
 
 import java.util.ArrayList;
 
-public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class TrailerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     Context context;
-    ArrayList<MovieModel> data = new ArrayList<>();
+    ArrayList<TrailerModel> data = new ArrayList<>();
 
 
-    public MovieAdapter(Context context, ArrayList<MovieModel> data) {
+    public TrailerAdapter(Context context, ArrayList<TrailerModel> data) {
         this.context = context;
         this.data = data;
     }
@@ -30,7 +30,7 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         RecyclerView.ViewHolder viewHolder;
         View v;
         v = LayoutInflater.from(parent.getContext()).inflate(
-                R.layout.list_item, parent, false);
+                R.layout.trailer_list_item, parent, false);
         viewHolder = new MyItemHolder(v);
 
         return viewHolder;
@@ -39,18 +39,10 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
 
-        String imageURL = BuildConfig.IMAGE_URL+"/w342" + data.get(position).getposter_path() + "?api_key?=" + BuildConfig.API_KEY;
-        Picasso.with(context).load(imageURL).into(((MyItemHolder) holder).imageView, new Callback() {
-            @Override
-            public void onSuccess() {
-                MovieListActivity.progressBar.setVisibility(View.GONE);
-            }
+        String id = data.get(position).getKey();
+        String thumbnailURL = "http://img.youtube.com/vi/".concat(id).concat("/hqdefault.jpg");
+        Picasso.with(context).load(thumbnailURL).placeholder(R.drawable.thumbnail).into(((MyItemHolder) holder).imageView);
 
-            @Override
-            public void onError() {
-
-            }
-        });
 
 
     }
@@ -67,9 +59,14 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         public MyItemHolder(View itemView) {
             super(itemView);
 
-            imageView = (ImageView) itemView.findViewById(R.id.listImage);
+            imageView = (ImageView) itemView.findViewById(R.id.trailerImage);
         }
 
+    }
+
+    public void addAll(ArrayList<TrailerModel> list){
+        for (int i = 0; i < list.size(); i++)
+            data.add(list.get(i));
     }
 
 }

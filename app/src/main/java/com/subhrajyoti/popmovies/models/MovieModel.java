@@ -13,7 +13,7 @@ public class MovieModel extends RealmObject implements Parcelable{
     private String overview;
     private float vote_average;
     private String backdrop_path;
-    private String movie_id;
+    private String id;
 
     public String getTag() {
         return tag;
@@ -43,7 +43,7 @@ public class MovieModel extends RealmObject implements Parcelable{
         dest.writeString(backdrop_path);
         dest.writeString(overview);
         dest.writeString(release_date);
-        dest.writeString(movie_id);
+        dest.writeString(id);
 
     }
 
@@ -54,7 +54,7 @@ public class MovieModel extends RealmObject implements Parcelable{
         backdrop_path = in.readString();
         overview = in.readString();
         release_date = in.readString();
-        movie_id = in.readString();
+        id = in.readString();
     }
 
     public static final Creator<MovieModel> CREATOR = new Creator<MovieModel>() {
@@ -105,8 +105,8 @@ public class MovieModel extends RealmObject implements Parcelable{
         return backdrop_path;
     }
 
-    public String getMovie_id() {
-        return movie_id;
+    public String getId() {
+        return id;
     }
 
 

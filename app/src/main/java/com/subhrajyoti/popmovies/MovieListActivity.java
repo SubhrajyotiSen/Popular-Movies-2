@@ -15,6 +15,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+
+import com.subhrajyoti.popmovies.adapters.MovieAdapter;
 import com.subhrajyoti.popmovies.application.App;
 import com.subhrajyoti.popmovies.models.MovieModel;
 import com.subhrajyoti.popmovies.retrofit.MovieAPI;
@@ -34,7 +36,9 @@ public class MovieListActivity extends AppCompatActivity {
 
     @Bind(R.id.recyclerView)
     RecyclerView recyclerView;
-    static ProgressBar progressBar;
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
+    public static ProgressBar progressBar;
     MovieAdapter mainAdapter;
     MovieAdapter secondAdapter;
     ArrayList<MovieModel> popularList;
@@ -50,42 +54,45 @@ public class MovieListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie_list);
         ButterKnife.bind(this);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         popularList = new ArrayList<>();
         ratedList = new ArrayList<>();
-        popular=false;
+        popular = false;
         setupRecyclerView();
-        realm.beginTransaction();
-        if (isNetworkAvailable()) {
-            realm.deleteAll();
-            realm.commitTransaction();
-            getMovies("popular");
-            getMovies("top_rated");
+        if (savedInstanceState!=null)
+        {
+            mainAdapter.addAll(savedInstanceState.<MovieModel>getParcelableArrayList("POP"));
+            secondAdapter.addAll(savedInstanceState.<MovieModel>getParcelableArrayList("RATED"));
         }
         else {
-            parseRealm("popular");
-            parseRealm("rated");
+            realm.beginTransaction();
+            if (isNetworkAvailable()) {
+                realm.deleteAll();
+                realm.commitTransaction();
+                getMovies("popular");
+                getMovies("top_rated");
+            } else {
+                parseRealm("popular");
+                parseRealm("rated");
+            }
         }
         if (findViewById(R.id.movie_detail_container) != null) {
 
             mTwoPane = true;
         }
-        recyclerView.addOnItemTouchListener(new RecyclerClickListener(this,new RecyclerClickListener.OnItemClickListener() {
+        recyclerView.addOnItemTouchListener(new RecyclerClickListener(this, new RecyclerClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 MovieModel movieModel;
-                if (!popular){
+                if (!popular) {
                     movieModel = popularList.get(position);
-                }
-                else {
+                } else {
                     movieModel = ratedList.get(position);
                 }
 
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putParcelable("movie",movieModel);
+                    arguments.putParcelable("movie", movieModel);
                     MovieDetailFragment fragment = new MovieDetailFragment();
                     fragment.setArguments(arguments);
                     getSupportFragmentManager().beginTransaction()
@@ -104,7 +111,7 @@ public class MovieListActivity extends AppCompatActivity {
 
     }
 
-    private void getMovies(final String sort){
+    private void getMovies(final String sort) {
 
         final Realm realm = Realm.getDefaultInstance();
         App.getMovieClient().getMovieAPI().loadMovies(sort, BuildConfig.API_KEY).enqueue(new Callback<MovieAPI.Movies>() {
@@ -120,8 +127,7 @@ public class MovieListActivity extends AppCompatActivity {
                         Log.v(sort, response.body().results.get(i).getoriginal_title());
                     }
                     mainAdapter.notifyDataSetChanged();
-                }
-                else {
+                } else {
                     for (int i = 0; i < response.body().results.size(); i++) {
                         response.body().results.get(i).setTag("Rated");
                         ratedList.add(response.body().results.get(i));
@@ -146,7 +152,7 @@ public class MovieListActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        MenuItem item =  menu.findItem(R.id.action_sort_by_popularity);
+        MenuItem item = menu.findItem(R.id.action_sort_by_popularity);
         item.setChecked(true);
         return true;
     }
@@ -156,14 +162,14 @@ public class MovieListActivity extends AppCompatActivity {
 
         int id = item.getItemId();
 
-        switch (id){
+        switch (id) {
             case R.id.action_sort_by_rating:
                 recyclerView.setAdapter(secondAdapter);
-                popular=true;
+                popular = true;
                 break;
             case R.id.action_sort_by_popularity:
                 recyclerView.setAdapter(mainAdapter);
-                popular=false;
+                popular = false;
                 break;
 
         }
@@ -171,7 +177,6 @@ public class MovieListActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
 
 
     @Override
@@ -193,36 +198,46 @@ public class MovieListActivity extends AppCompatActivity {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public void setupRecyclerView(){
-        gridLayoutManager = new GridLayoutManager(this,2);
+    public void setupRecyclerView() {
+        gridLayoutManager = new GridLayoutManager(this, 2);
 
-        if (getResources().getConfiguration().orientation== Configuration.ORIENTATION_PORTRAIT)
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
             gridLayoutManager.setSpanCount(2);
         else
             gridLayoutManager.setSpanCount(3);
-        mainAdapter = new MovieAdapter(this,popularList);
-        secondAdapter = new MovieAdapter(this,ratedList);
+        mainAdapter = new MovieAdapter(this, popularList);
+        secondAdapter = new MovieAdapter(this, ratedList);
         recyclerView.setAdapter(mainAdapter);
         recyclerView.setLayoutManager(gridLayoutManager);
     }
 
-    public void parseRealm(String sort){
+    public void parseRealm(String sort) {
 
-        if (sort.equals("popular")){
-            RealmResults<MovieModel> realmResults = realm.where(MovieModel.class).contains("tag","Popular").findAll();
+        if (sort.equals("popular")) {
+            RealmResults<MovieModel> realmResults = realm.where(MovieModel.class).contains("tag", "Popular").findAll();
             Log.d("Size", String.valueOf(realmResults.size()));
-            for (int i = 0; i < realmResults.size(); i++){
+            for (int i = 0; i < realmResults.size(); i++) {
                 popularList.add(realmResults.get(i));
-                Log.d("pop add",realmResults.get(i).getoriginal_title());}
+                Log.d("pop add", realmResults.get(i).getoriginal_title());
+            }
             mainAdapter.notifyDataSetChanged();
 
-        }
-        else{
-            RealmResults<MovieModel> realmResults = realm.where(MovieModel.class).contains("tag","Rated").findAll();
+        } else {
+            RealmResults<MovieModel> realmResults = realm.where(MovieModel.class).contains("tag", "Rated").findAll();
             for (int i = 0; i < realmResults.size(); i++)
                 ratedList.add(realmResults.get(i));
             secondAdapter.notifyDataSetChanged();
         }
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelableArrayList("POP", popularList);
+        outState.putParcelableArrayList("RATED",ratedList);
+
 
     }
 
