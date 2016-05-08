@@ -42,6 +42,8 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
 
+        MovieListActivity.progressBar.setVisibility(View.VISIBLE);
+
         String imageURL = BuildConfig.IMAGE_URL+"/w342" + data.get(position).getposter_path() + "?api_key?=" + BuildConfig.API_KEY;
         Picasso.with(context).load(imageURL).into(((MyItemHolder) holder).imageView, new Callback() {
             @Override

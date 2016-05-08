@@ -1,7 +1,9 @@
 package com.subhrajyoti.popmovies;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -52,6 +54,7 @@ public class MovieListActivity extends AppCompatActivity{
     private boolean mTwoPane;
     Realm realm = Realm.getDefaultInstance();
     String SORT_BY = "POPULAR";
+    NetworkReceiver networkReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,29 +62,42 @@ public class MovieListActivity extends AppCompatActivity{
         setContentView(R.layout.activity_movie_list);
         ButterKnife.bind(this);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        if (progressBar != null) {
+            progressBar.setVisibility(View.INVISIBLE);
+        }
         setSupportActionBar(toolbar);
         popularList = new ArrayList<>();
         ratedList = new ArrayList<>();
         favList = new ArrayList<>();
-        setupRecyclerView();
+        popularAdapter = new MovieAdapter(this, popularList);
+        ratedAdapter = new MovieAdapter(this, ratedList);
+        favouriteAdapter = new MovieAdapter(this,favList);
+        IntentFilter intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
+        networkReceiver = new NetworkReceiver();
+        registerReceiver(networkReceiver,intentFilter);
+
+
         if (savedInstanceState!=null)
         {
             popularAdapter.addAll(savedInstanceState.<MovieModel>getParcelableArrayList("POP"));
             ratedAdapter.addAll(savedInstanceState.<MovieModel>getParcelableArrayList("RATED"));
+            SORT_BY = savedInstanceState.getString("SORT_BY");
         }
+
         else {
             if (isNetworkAvailable()) {
 
                 (new FetchMovies()).execute("popular");
                 (new FetchMovies()).execute("top_rated");
-            } else {
-
             }
         }
         if (findViewById(R.id.movie_detail_container) != null) {
-
             mTwoPane = true;
         }
+        setupRecyclerView();
+
+
+
         realm.addChangeListener(new RealmChangeListener() {
             @Override
             public void onChange() {
@@ -155,6 +171,16 @@ public class MovieListActivity extends AppCompatActivity{
                         }
                         ratedAdapter.notifyDataSetChanged();
                     }
+                    if (mTwoPane && popularList.size()!=0) {
+                        Bundle arguments = new Bundle();
+                        arguments.putParcelable("movie", popularList.get(0));
+                        MovieDetailFragment fragment = new MovieDetailFragment();
+                        fragment.setArguments(arguments);
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.movie_detail_container, fragment)
+                                .commit();
+                    }
+
                 }
 
                 @Override
@@ -168,7 +194,7 @@ public class MovieListActivity extends AppCompatActivity{
 
         @Override
         protected void onPostExecute(List<MovieModel> movieModels) {
-            super.onPostExecute(movieModels);
+
         }
     }
 
@@ -179,8 +205,14 @@ public class MovieListActivity extends AppCompatActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        MenuItem item = menu.findItem(R.id.action_sort_by_popularity);
-        item.setChecked(true);
+        switch (SORT_BY){
+            case "POPULAR" : menu.findItem(R.id.action_sort_by_popularity).setChecked(true);
+                break;
+            case "RATED" : menu.findItem(R.id.action_sort_by_rating).setChecked(true);
+                break;
+            case "FAVOURITE" : menu.findItem(R.id.action_sort_by_favourite).setChecked(true);
+                break;
+        }
         return true;
     }
 
@@ -238,10 +270,15 @@ public class MovieListActivity extends AppCompatActivity{
             gridLayoutManager.setSpanCount(2);
         else
             gridLayoutManager.setSpanCount(3);
-        popularAdapter = new MovieAdapter(this, popularList);
-        ratedAdapter = new MovieAdapter(this, ratedList);
-        favouriteAdapter = new MovieAdapter(this,favList);
-        recyclerView.setAdapter(popularAdapter);
+
+        switch (SORT_BY){
+            case "POPULAR" : recyclerView.setAdapter(popularAdapter);
+                break;
+            case "RATED" : recyclerView.setAdapter(ratedAdapter);
+                break;
+            case "FAVOURITE" : recyclerView.setAdapter(favouriteAdapter);
+        }
+
         recyclerView.setLayoutManager(gridLayoutManager);
     }
 
@@ -263,9 +300,27 @@ public class MovieListActivity extends AppCompatActivity{
 
         outState.putParcelableArrayList("POP", popularList);
         outState.putParcelableArrayList("RATED",ratedList);
+        outState.putString("SORT_BY",SORT_BY);
 
 
     }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(networkReceiver);
+    }
 
+    public class NetworkReceiver extends BroadcastReceiver {
+        public NetworkReceiver(){
+
+        }
+        @Override
+        public void onReceive(Context context, Intent intent) {
+                if (isNetworkAvailable() && popularList.size()!=0) {
+                    (new FetchMovies()).execute("popular");
+                    (new FetchMovies()).execute("top_rated");
+                }
+        }
+    }
 
 }
