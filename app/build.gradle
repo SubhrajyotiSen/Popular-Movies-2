@@ -12,7 +12,7 @@ android {
         versionCode 1
         versionName "1.0"
         def STRING = "String"
-        buildConfigField STRING, "API_KEY", "\"954a72d39f9d0a7f59b3c738fa9d6e7f\""
+        buildConfigField STRING, "API_KEY", "\"<API Key here\""
         buildConfigField STRING, "ROOT_URL", "\"http://api.themoviedb.org\""
         buildConfigField STRING, "IMAGE_URL", "\"http://image.tmdb.org/t/p\""
 
@@ -42,14 +42,14 @@ allprojects {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.3.0'
-    compile 'com.android.support:design:23.3.0'
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:design:23.4.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jakewharton:butterknife:7.0.1'
-    compile 'com.android.support:recyclerview-v7:23.3.0'
+    compile 'com.android.support:recyclerview-v7:23.4.0'
     compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'
     compile 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
-    compile 'com.android.support:support-v4:23.3.0'
+    compile 'com.android.support:support-v4:23.4.0'
 
 
 }

@@ -1,7 +1,10 @@
 package com.subhrajyoti.popmovies;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -9,7 +12,6 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
@@ -63,6 +66,12 @@ public class MovieDetailFragment extends Fragment {
     RecyclerView trailersRecyclerView;
     @Bind(R.id.reviewsRecyclerView)
     RecyclerView reviewsRecyclerView;
+    @Bind(R.id.noReviewView)
+    TextView noReviewView;
+    @Bind(R.id.noTrailerView)
+    TextView noTrailerView;
+    @Bind(R.id.extras)
+    LinearLayout extraLayout;
     ArrayList<TrailerModel> trailerList;
     ArrayList<ReviewModel> reviewList;
     ReviewAdapter reviewAdapter;
@@ -100,7 +109,6 @@ public class MovieDetailFragment extends Fragment {
 
         titleView.setText(movieModel.getoriginal_title());
 
-
         Picasso.with(getActivity()).load(BuildConfig.IMAGE_URL+"/w342" + movieModel.getposter_path() + "?api_key?=" + BuildConfig.API_KEY).placeholder(R.drawable.placeholder).error(R.drawable.placeholder).into(imageView);
 
         rating.setText(Float.toString(movieModel.getvote_average()).concat("/10"));
@@ -109,6 +117,9 @@ public class MovieDetailFragment extends Fragment {
 
         overview.setText(movieModel.getOverview());
         releaseText.setText("Release Date: ".concat(movieModel.getrelease_date()));
+
+        if (!isNetworkAvailable())
+            extraLayout.setVisibility(View.INVISIBLE);
 
         LinearLayoutManager trailerLayoutManager = new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false);
         LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(getContext());
@@ -190,6 +201,7 @@ public class MovieDetailFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+
     private boolean isFavourite(){
 
         return realm.where(MovieModel.class).contains("id", movieModel.getId()).findAll().size() != 0;
@@ -216,6 +228,10 @@ public class MovieDetailFragment extends Fragment {
                         reviewList.add(response.body().results.get(i));
                     }
                     reviewAdapter.notifyDataSetChanged();
+                    if (reviewList.isEmpty()) {
+                        reviewsRecyclerView.setVisibility(View.INVISIBLE);
+                        noReviewView.setVisibility(View.VISIBLE);
+                    }
                 }
 
                 @Override
@@ -254,6 +270,10 @@ public class MovieDetailFragment extends Fragment {
                         trailerList.add(response.body().results.get(i));
                     }
                     trailerAdapter.notifyDataSetChanged();
+                    if (trailerList.isEmpty()) {
+                        trailersRecyclerView.setVisibility(View.INVISIBLE);
+                        noTrailerView.setVisibility(View.VISIBLE);
+                    }
                 }
 
                 @Override
@@ -271,6 +291,12 @@ public class MovieDetailFragment extends Fragment {
         }
     }
 
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 
 
 

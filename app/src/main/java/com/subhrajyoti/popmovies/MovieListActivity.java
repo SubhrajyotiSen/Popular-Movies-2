@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.subhrajyoti.popmovies.adapters.MovieAdapter;
 import com.subhrajyoti.popmovies.application.App;
@@ -320,6 +321,7 @@ public class MovieListActivity extends AppCompatActivity{
                     (new FetchMovies()).execute("popular");
                     (new FetchMovies()).execute("top_rated");
                 }
+            Toast.makeText(getApplicationContext(), "Network chnaged", Toast.LENGTH_SHORT).show();
         }
     }
 

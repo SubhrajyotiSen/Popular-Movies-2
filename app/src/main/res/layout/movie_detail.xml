@@ -18,6 +18,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="15dp"
+                android:paddingRight="15dp"
                 android:paddingTop="15dp" />
 
             <LinearLayout
@@ -64,6 +65,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="10dp"
+            android:paddingRight="10dp"
             android:paddingTop="10dp"
             android:text="@string/overview_header"
             android:textColor="#000000"
@@ -76,11 +78,18 @@
             android:padding="10dp"
             android:textColor="#000000" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/extras">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="10dp"
             android:paddingTop="10dp"
+            android:paddingRight="10dp"
             android:text="@string/trailers_header"
             android:textColor="#000000"
             android:textSize="25sp" />
@@ -93,6 +102,15 @@
             tools:context="com.subhrajyoti.popmovies.MovieListActivity"
             android:layout_marginRight="5dp"
             android:layout_marginLeft="5dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/noTrailerView"
+                android:textSize="20sp"
+                android:text="No trailers available"
+                android:visibility="invisible"
+                android:paddingLeft="15dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -111,6 +129,16 @@
             tools:context="com.subhrajyoti.popmovies.MovieListActivity"
             android:layout_marginRight="5dp"
             android:layout_marginLeft="5dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/noReviewView"
+                android:textSize="20sp"
+                android:paddingLeft="15dp"
+                android:text="No reviews available"
+                android:visibility="invisible" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>
 
