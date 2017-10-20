@@ -1,6 +1,5 @@
 package com.subhrajyoti.popmovies.adapters;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,15 +13,17 @@ import com.subhrajyoti.popmovies.utils.URLUtils;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
 public class TrailerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private Context context;
-    private ArrayList<TrailerModel> data = new ArrayList<>();
+    private ArrayList<TrailerModel> data;
+    private Picasso picasso;
 
-
-    public TrailerAdapter(Context context, ArrayList<TrailerModel> data) {
-        this.context = context;
-        this.data = data;
+    @Inject
+    TrailerAdapter(Picasso picasso) {
+        this.picasso = picasso;
+        this.data = new ArrayList<>();
     }
 
 
@@ -41,13 +42,26 @@ public class TrailerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
 
         String thumbnailURL = URLUtils.makeThumbnailURL(data.get(position).getKey());
-        Picasso.with(context).load(thumbnailURL).placeholder(R.drawable.thumbnail).into(((MyItemHolder) holder).imageView);
+        picasso.load(thumbnailURL).placeholder(R.drawable.thumbnail).into(((MyItemHolder) holder).imageView);
 
     }
 
     @Override
     public int getItemCount() {
         return data.size();
+    }
+
+    public void addAll(ArrayList<TrailerModel> data) {
+        this.data.addAll(data);
+        notifyDataSetChanged();
+    }
+
+    public TrailerModel get(int position) {
+        return data.get(position);
+    }
+
+    public ArrayList<TrailerModel> getData() {
+        return data;
     }
 
     public static class MyItemHolder extends RecyclerView.ViewHolder {

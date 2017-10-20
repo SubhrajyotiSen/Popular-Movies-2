@@ -21,11 +21,12 @@ import io.realm.RealmResults;
 public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Picasso picasso;
-    private ArrayList<MovieModel> data = new ArrayList<>();
+    private ArrayList<MovieModel> data;
 
     @Inject
     MovieAdapter(Picasso picasso) {
         this.picasso = picasso;
+        this.data = new ArrayList<>();
     }
 
 

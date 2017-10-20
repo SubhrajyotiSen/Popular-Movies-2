@@ -27,13 +27,9 @@ import com.subhrajyoti.popmovies.application.MovieApplication;
 import com.subhrajyoti.popmovies.dagger.component.DaggerMovieActivityComponent;
 import com.subhrajyoti.popmovies.dagger.component.MovieActivityComponent;
 import com.subhrajyoti.popmovies.models.MovieModel;
-import com.subhrajyoti.popmovies.models.ReviewModel;
-import com.subhrajyoti.popmovies.models.TrailerModel;
 import com.subhrajyoti.popmovies.retrofit.MovieService;
 import com.subhrajyoti.popmovies.utils.NetworkUtils;
 import com.subhrajyoti.popmovies.utils.RecyclerClickListener;
-
-import java.util.ArrayList;
 
 import javax.inject.Inject;
 
@@ -70,9 +66,9 @@ public class MovieDetailFragment extends Fragment {
     TextView noTrailerView;
     @BindView(R.id.extras)
     LinearLayout extraLayout;
-    ArrayList<TrailerModel> trailerList;
-    ArrayList<ReviewModel> reviewList;
+    @Inject
     ReviewAdapter reviewAdapter;
+    @Inject
     TrailerAdapter trailerAdapter;
     @Inject
     Picasso picasso;
@@ -106,8 +102,6 @@ public class MovieDetailFragment extends Fragment {
 
         movieActivityComponent.injectMovieDetailsFragment(this);
 
-        trailerList = new ArrayList<>();
-        reviewList = new ArrayList<>();
         if (NetworkUtils.isNetworkAvailable(getActivity())) {
             fetchReviews(movieModel.getId());
             fetchTrailers(movieModel.getId());
@@ -141,14 +135,11 @@ public class MovieDetailFragment extends Fragment {
         trailersRecyclerView.setLayoutManager(trailerLayoutManager);
         reviewsRecyclerView.setLayoutManager(reviewLayoutManager);
 
-        reviewAdapter = new ReviewAdapter(reviewList);
-        trailerAdapter = new TrailerAdapter(getContext(),trailerList);
-
         trailersRecyclerView.setAdapter(trailerAdapter);
         reviewsRecyclerView.setAdapter(reviewAdapter);
 
         trailersRecyclerView.addOnItemTouchListener(new RecyclerClickListener(getContext(), (view, position) -> {
-            String url = "https://www.youtube.com/watch?v=".concat(trailerList.get(position).getKey());
+            String url = "https://www.youtube.com/watch?v=".concat(trailerAdapter.get(position).getKey());
             Intent i = new Intent(Intent.ACTION_VIEW);
             i.setData(Uri.parse(url));
             startActivity(i);
@@ -156,7 +147,7 @@ public class MovieDetailFragment extends Fragment {
 
         reviewsRecyclerView.addOnItemTouchListener(new RecyclerClickListener(getContext(), (view, position) -> {
             Intent i = new Intent(Intent.ACTION_VIEW);
-            i.setData(Uri.parse(reviewList.get(position).getUrl()));
+            i.setData(Uri.parse(reviewAdapter.get(position).getUrl()));
             startActivity(i);
         }));
         return rootView;
@@ -179,7 +170,7 @@ public class MovieDetailFragment extends Fragment {
                 Intent share = new Intent(android.content.Intent.ACTION_SEND);
                 share.setType("text/plain");
                 share.putExtra(Intent.EXTRA_SUBJECT, movieModel.getoriginal_title());
-                share.putExtra(Intent.EXTRA_TEXT, "https://www.youtube.com/watch?v=".concat(trailerList.get(0).getKey()));
+                share.putExtra(Intent.EXTRA_TEXT, "https://www.youtube.com/watch?v=".concat(trailerAdapter.get(0).getKey()));
                 startActivity(Intent.createChooser(share, "Share Trailer!"));
                 break;
 
@@ -219,9 +210,8 @@ public class MovieDetailFragment extends Fragment {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(reviews -> {
-                    reviewList.addAll(reviews.results);
-                    reviewAdapter.notifyDataSetChanged();
-                    if (reviewList.isEmpty()) {
+                    reviewAdapter.addAll(reviews.results);
+                    if (reviewAdapter.getData().isEmpty()) {
                         reviewsRecyclerView.setVisibility(View.INVISIBLE);
                         noReviewView.setVisibility(View.VISIBLE);
                     }
@@ -234,9 +224,8 @@ public class MovieDetailFragment extends Fragment {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(trailers -> {
-                    trailerList.addAll(trailers.results);
-                    trailerAdapter.notifyDataSetChanged();
-                    if (trailerList.isEmpty()) {
+                    trailerAdapter.addAll(trailers.results);
+                    if (trailerAdapter.getData().isEmpty()) {
                         trailersRecyclerView.setVisibility(View.INVISIBLE);
                         noTrailerView.setVisibility(View.VISIBLE);
                     }

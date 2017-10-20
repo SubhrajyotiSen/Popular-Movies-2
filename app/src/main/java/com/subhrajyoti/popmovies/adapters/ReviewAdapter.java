@@ -11,18 +11,19 @@ import com.subhrajyoti.popmovies.models.ReviewModel;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class ReviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private ArrayList<ReviewModel> data = new ArrayList<>();
+    private ArrayList<ReviewModel> data;
 
-
-    public ReviewAdapter(ArrayList<ReviewModel> data) {
-        this.data = data;
+    @Inject
+    ReviewAdapter() {
+        this.data = new ArrayList<>();
     }
-
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -46,6 +47,19 @@ public class ReviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public int getItemCount() {
         return data.size();
+    }
+
+    public void addAll(ArrayList<ReviewModel> data) {
+        this.data.addAll(data);
+        notifyDataSetChanged();
+    }
+
+    public ReviewModel get(int position) {
+        return data.get(position);
+    }
+
+    public ArrayList<ReviewModel> getData() {
+        return data;
     }
 
     static class MyItemHolder extends RecyclerView.ViewHolder {

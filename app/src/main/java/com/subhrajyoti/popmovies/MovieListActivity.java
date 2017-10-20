@@ -10,7 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -78,11 +77,6 @@ public class MovieListActivity extends AppCompatActivity {
                 .build();
 
         movieActivityComponent.injectMovieListActivity(this);
-
-        Log.i("TAG", popularAdapter + "");
-        Log.i("TAG", ratedAdapter + "");
-        Log.i("TAG", favouriteAdapter + "");
-
 
         IntentFilter intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
         networkReceiver = new NetworkReceiver();
