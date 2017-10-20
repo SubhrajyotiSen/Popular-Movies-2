@@ -1,5 +1,6 @@
 package com.subhrajyoti.popmovies;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -35,7 +36,7 @@ import com.subhrajyoti.popmovies.retrofit.MovieAPI;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
 import retrofit.Callback;
@@ -50,27 +51,27 @@ public class MovieDetailFragment extends Fragment {
     }
 
     MovieModel movieModel;
-    @Bind(R.id.imageView)
+    @BindView(R.id.imageView)
     ImageView imageView;
-    @Bind(R.id.titleView)
+    @BindView(R.id.titleView)
     TextView titleView;
-    @Bind(R.id.rating)
+    @BindView(R.id.rating)
     TextView rating;
-    @Bind(R.id.ratingBar)
+    @BindView(R.id.ratingBar)
     RatingBar ratingBar;
-    @Bind(R.id.overview)
+    @BindView(R.id.overview)
     TextView overview;
-    @Bind(R.id.releaseText)
+    @BindView(R.id.releaseText)
     TextView releaseText;
-    @Bind(R.id.trailersRecyclerView)
+    @BindView(R.id.trailersRecyclerView)
     RecyclerView trailersRecyclerView;
-    @Bind(R.id.reviewsRecyclerView)
+    @BindView(R.id.reviewsRecyclerView)
     RecyclerView reviewsRecyclerView;
-    @Bind(R.id.noReviewView)
+    @BindView(R.id.noReviewView)
     TextView noReviewView;
-    @Bind(R.id.noTrailerView)
+    @BindView(R.id.noTrailerView)
     TextView noTrailerView;
-    @Bind(R.id.extras)
+    @BindView(R.id.extras)
     LinearLayout extraLayout;
     ArrayList<TrailerModel> trailerList;
     ArrayList<ReviewModel> reviewList;
@@ -101,6 +102,7 @@ public class MovieDetailFragment extends Fragment {
         (new FetchTrailers()).execute(movieModel.getId());
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -224,9 +226,7 @@ public class MovieDetailFragment extends Fragment {
                 @Override
                 public void onResponse(Response<MovieAPI.Reviews> response, Retrofit retrofit) {
 
-                    for (int i = 0; i < response.body().results.size(); i++) {
-                        reviewList.add(response.body().results.get(i));
-                    }
+                    reviewList.addAll(response.body().results);
                     reviewAdapter.notifyDataSetChanged();
                     if (reviewList.isEmpty()) {
                         reviewsRecyclerView.setVisibility(View.INVISIBLE);
@@ -266,9 +266,7 @@ public class MovieDetailFragment extends Fragment {
                 @Override
                 public void onResponse(Response<MovieAPI.Trailers> response, Retrofit retrofit) {
 
-                    for (int i = 0; i < response.body().results.size(); i++) {
-                        trailerList.add(response.body().results.get(i));
-                    }
+                    trailerList.addAll(response.body().results);
                     trailerAdapter.notifyDataSetChanged();
                     if (trailerList.isEmpty()) {
                         trailersRecyclerView.setVisibility(View.INVISIBLE);
@@ -294,6 +292,7 @@ public class MovieDetailFragment extends Fragment {
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        assert connectivityManager != null;
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }

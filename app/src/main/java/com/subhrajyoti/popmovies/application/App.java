@@ -14,7 +14,8 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        RealmConfiguration config = new RealmConfiguration.Builder(getApplicationContext()).deleteRealmIfMigrationNeeded().build();
+        Realm.init(getApplicationContext());
+        RealmConfiguration config = new RealmConfiguration.Builder().deleteRealmIfMigrationNeeded().build();
         Realm.setDefaultConfiguration(config);
         movieClient = new MovieAPI.MovieClient();
     }

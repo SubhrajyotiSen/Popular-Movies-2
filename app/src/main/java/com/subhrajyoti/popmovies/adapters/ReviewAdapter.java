@@ -5,7 +5,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.subhrajyoti.popmovies.R;
@@ -13,13 +12,13 @@ import com.subhrajyoti.popmovies.models.ReviewModel;
 
 import java.util.ArrayList;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class ReviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    Context context;
-    ArrayList<ReviewModel> data = new ArrayList<>();
+    private Context context;
+    private ArrayList<ReviewModel> data = new ArrayList<>();
 
 
     public ReviewAdapter(Context context, ArrayList<ReviewModel> data) {
@@ -52,14 +51,14 @@ public class ReviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return data.size();
     }
 
-    public static class MyItemHolder extends RecyclerView.ViewHolder {
-        @Bind(R.id.authorText)
+    static class MyItemHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.authorText)
         TextView authorText;
-        @Bind(R.id.reviewText)
+        @BindView(R.id.reviewText)
         TextView reviewText;
 
 
-        public MyItemHolder(View itemView) {
+        MyItemHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this,itemView);
 

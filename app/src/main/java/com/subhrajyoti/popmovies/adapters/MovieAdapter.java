@@ -18,8 +18,8 @@ import java.util.ArrayList;
 
 public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    Context context;
-    ArrayList<MovieModel> data = new ArrayList<>();
+    private Context context;
+    private ArrayList<MovieModel> data = new ArrayList<>();
 
 
     public MovieAdapter(Context context, ArrayList<MovieModel> data) {
@@ -69,7 +69,7 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         ImageView imageView;
 
 
-        public MyItemHolder(View itemView) {
+        MyItemHolder(View itemView) {
             super(itemView);
 
             imageView = (ImageView) itemView.findViewById(R.id.listImage);
@@ -78,8 +78,7 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     public void addAll(ArrayList<MovieModel> list){
-        for (int i = 0; i < list.size(); i++)
-        data.add(list.get(i));
+        data.addAll(list);
     }
 
 }

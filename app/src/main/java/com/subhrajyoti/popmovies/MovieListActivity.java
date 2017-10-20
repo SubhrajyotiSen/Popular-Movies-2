@@ -28,7 +28,7 @@ import com.subhrajyoti.popmovies.retrofit.MovieAPI;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
@@ -40,9 +40,9 @@ import retrofit.Retrofit;
 
 public class MovieListActivity extends AppCompatActivity{
 
-    @Bind(R.id.recyclerView)
+    @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
-    @Bind(R.id.toolbar)
+    @BindView(R.id.toolbar)
     Toolbar toolbar;
     public static ProgressBar progressBar;
     MovieAdapter popularAdapter;
@@ -62,7 +62,7 @@ public class MovieListActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_list);
         ButterKnife.bind(this);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
         if (progressBar != null) {
             progressBar.setVisibility(View.INVISIBLE);
         }
@@ -101,9 +101,10 @@ public class MovieListActivity extends AppCompatActivity{
 
         realm.addChangeListener(new RealmChangeListener() {
             @Override
-            public void onChange() {
+            public void onChange(Object o) {
                 getFavourites();
             }
+
         });
         recyclerView.addOnItemTouchListener(new RecyclerClickListener(this, new RecyclerClickListener.OnItemClickListener() {
             @Override
@@ -260,6 +261,7 @@ public class MovieListActivity extends AppCompatActivity{
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        assert connectivityManager != null;
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }

@@ -15,8 +15,8 @@ import java.util.ArrayList;
 
 public class TrailerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    Context context;
-    ArrayList<TrailerModel> data = new ArrayList<>();
+    private Context context;
+    private ArrayList<TrailerModel> data = new ArrayList<>();
 
 
     public TrailerAdapter(Context context, ArrayList<TrailerModel> data) {
@@ -56,10 +56,10 @@ public class TrailerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         ImageView imageView;
 
 
-        public MyItemHolder(View itemView) {
+        MyItemHolder(View itemView) {
             super(itemView);
 
-            imageView = (ImageView) itemView.findViewById(R.id.trailerImage);
+            imageView = itemView.findViewById(R.id.trailerImage);
         }
 
     }

@@ -13,20 +13,20 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 import com.subhrajyoti.popmovies.models.MovieModel;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
 public class MovieDetailActivity extends AppCompatActivity {
 
-    @Bind(R.id.toolImage)
+    @BindView(R.id.toolImage)
     ImageView toolImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
+        Toolbar toolbar = findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
         ButterKnife.bind(this);
 
@@ -71,14 +71,5 @@ public class MovieDetailActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-
-
 
 }
