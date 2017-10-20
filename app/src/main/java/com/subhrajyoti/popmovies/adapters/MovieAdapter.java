@@ -1,30 +1,31 @@
 package com.subhrajyoti.popmovies.adapters;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-import com.subhrajyoti.popmovies.BuildConfig;
-import com.subhrajyoti.popmovies.MovieListActivity;
 import com.subhrajyoti.popmovies.R;
 import com.subhrajyoti.popmovies.models.MovieModel;
+import com.subhrajyoti.popmovies.utils.URLUtils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+
+import javax.inject.Inject;
+
+import io.realm.RealmResults;
 
 public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private Context context;
+    private Picasso picasso;
     private ArrayList<MovieModel> data = new ArrayList<>();
 
-
-    public MovieAdapter(Context context, ArrayList<MovieModel> data) {
-        this.context = context;
-        this.data = data;
+    @Inject
+    MovieAdapter(Picasso picasso) {
+        this.picasso = picasso;
     }
 
 
@@ -42,20 +43,8 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
 
-        MovieListActivity.progressBar.setVisibility(View.VISIBLE);
-
-        String imageURL = BuildConfig.IMAGE_URL+"/w342" + data.get(position).getposter_path() + "?api_key?=" + BuildConfig.API_KEY;
-        Picasso.with(context).load(imageURL).into(((MyItemHolder) holder).imageView, new Callback() {
-            @Override
-            public void onSuccess() {
-                MovieListActivity.progressBar.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onError() {
-
-            }
-        });
+        String imageURL = URLUtils.makeImageURL(data.get(position).getposter_path());
+        picasso.load(imageURL).into(((MyItemHolder) holder).imageView);
 
 
     }
@@ -65,6 +54,28 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         return data.size();
     }
 
+    public void addAll(ArrayList<MovieModel> list) {
+        data.clear();
+        data.addAll(list);
+        notifyDataSetChanged();
+    }
+
+    public void addAll(RealmResults<MovieModel> realmResults) {
+        Iterator<MovieModel> iterator = realmResults.iterator();
+        data.clear();
+        while (iterator.hasNext())
+            data.add(iterator.next());
+        notifyDataSetChanged();
+    }
+
+    public MovieModel get(int position) {
+        return data.get(position);
+    }
+
+    public ArrayList<MovieModel> getData() {
+        return data;
+    }
+
     public static class MyItemHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
 
@@ -72,13 +83,9 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         MyItemHolder(View itemView) {
             super(itemView);
 
-            imageView = (ImageView) itemView.findViewById(R.id.listImage);
+            imageView = itemView.findViewById(R.id.listImage);
         }
 
-    }
-
-    public void addAll(ArrayList<MovieModel> list){
-        data.addAll(list);
     }
 
 }

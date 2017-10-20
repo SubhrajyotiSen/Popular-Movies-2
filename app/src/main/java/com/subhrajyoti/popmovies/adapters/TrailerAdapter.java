@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 import com.subhrajyoti.popmovies.R;
 import com.subhrajyoti.popmovies.models.TrailerModel;
+import com.subhrajyoti.popmovies.utils.URLUtils;
 
 import java.util.ArrayList;
 
@@ -39,11 +40,8 @@ public class TrailerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
 
-        String id = data.get(position).getKey();
-        String thumbnailURL = "http://img.youtube.com/vi/".concat(id).concat("/hqdefault.jpg");
+        String thumbnailURL = URLUtils.makeThumbnailURL(data.get(position).getKey());
         Picasso.with(context).load(thumbnailURL).placeholder(R.drawable.thumbnail).into(((MyItemHolder) holder).imageView);
-
-
 
     }
 

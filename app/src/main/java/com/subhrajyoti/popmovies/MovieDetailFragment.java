@@ -2,12 +2,8 @@ package com.subhrajyoti.popmovies;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
@@ -27,28 +23,29 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.subhrajyoti.popmovies.adapters.ReviewAdapter;
 import com.subhrajyoti.popmovies.adapters.TrailerAdapter;
-import com.subhrajyoti.popmovies.application.App;
+import com.subhrajyoti.popmovies.application.MovieApplication;
+import com.subhrajyoti.popmovies.dagger.component.DaggerMovieActivityComponent;
+import com.subhrajyoti.popmovies.dagger.component.MovieActivityComponent;
 import com.subhrajyoti.popmovies.models.MovieModel;
 import com.subhrajyoti.popmovies.models.ReviewModel;
 import com.subhrajyoti.popmovies.models.TrailerModel;
-import com.subhrajyoti.popmovies.retrofit.MovieAPI;
+import com.subhrajyoti.popmovies.retrofit.MovieService;
+import com.subhrajyoti.popmovies.utils.NetworkUtils;
+import com.subhrajyoti.popmovies.utils.RecyclerClickListener;
 
 import java.util.ArrayList;
-import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
 
 
 public class MovieDetailFragment extends Fragment {
 
-
-    public MovieDetailFragment() {
-    }
 
     MovieModel movieModel;
     @BindView(R.id.imageView)
@@ -77,9 +74,15 @@ public class MovieDetailFragment extends Fragment {
     ArrayList<ReviewModel> reviewList;
     ReviewAdapter reviewAdapter;
     TrailerAdapter trailerAdapter;
-    Realm realm = Realm.getDefaultInstance();
+    @Inject
+    Picasso picasso;
+    @Inject
+    Realm realm;
+    @Inject
+    MovieService movieService;
 
-
+    public MovieDetailFragment() {
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -89,17 +92,26 @@ public class MovieDetailFragment extends Fragment {
         if (getArguments().containsKey("movie")) {
 
             Activity activity = this.getActivity();
-            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.collapsing_toolbar);
+            CollapsingToolbarLayout appBarLayout = activity.findViewById(R.id.collapsing_toolbar);
             if (appBarLayout != null) {
                 appBarLayout.setTitle("");
-           }
+            }
             movieModel = getArguments().getParcelable("movie");
             assert movieModel != null;
         }
+
+        MovieActivityComponent movieActivityComponent = DaggerMovieActivityComponent.builder()
+                .movieApplicationComponent(MovieApplication.get(getActivity()).getMovieApplicationComponent())
+                .build();
+
+        movieActivityComponent.injectMovieDetailsFragment(this);
+
         trailerList = new ArrayList<>();
         reviewList = new ArrayList<>();
-        (new FetchReviews()).execute(movieModel.getId());
-        (new FetchTrailers()).execute(movieModel.getId());
+        if (NetworkUtils.isNetworkAvailable(getActivity())) {
+            fetchReviews(movieModel.getId());
+            fetchTrailers(movieModel.getId());
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -111,7 +123,7 @@ public class MovieDetailFragment extends Fragment {
 
         titleView.setText(movieModel.getoriginal_title());
 
-        Picasso.with(getActivity()).load(BuildConfig.IMAGE_URL+"/w342" + movieModel.getposter_path() + "?api_key?=" + BuildConfig.API_KEY).placeholder(R.drawable.placeholder).error(R.drawable.placeholder).into(imageView);
+        picasso.load(BuildConfig.IMAGE_URL + "/w342" + movieModel.getposter_path() + "?api_key?=" + BuildConfig.API_KEY).placeholder(R.drawable.placeholder).error(R.drawable.placeholder).into(imageView);
 
         rating.setText(Float.toString(movieModel.getvote_average()).concat("/10"));
         ratingBar.setMax(5);
@@ -120,7 +132,7 @@ public class MovieDetailFragment extends Fragment {
         overview.setText(movieModel.getOverview());
         releaseText.setText("Release Date: ".concat(movieModel.getrelease_date()));
 
-        if (!isNetworkAvailable())
+        if (!NetworkUtils.isNetworkAvailable(getActivity()))
             extraLayout.setVisibility(View.INVISIBLE);
 
         LinearLayoutManager trailerLayoutManager = new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false);
@@ -129,30 +141,23 @@ public class MovieDetailFragment extends Fragment {
         trailersRecyclerView.setLayoutManager(trailerLayoutManager);
         reviewsRecyclerView.setLayoutManager(reviewLayoutManager);
 
-        reviewAdapter = new ReviewAdapter(getContext(),reviewList);
+        reviewAdapter = new ReviewAdapter(reviewList);
         trailerAdapter = new TrailerAdapter(getContext(),trailerList);
 
         trailersRecyclerView.setAdapter(trailerAdapter);
         reviewsRecyclerView.setAdapter(reviewAdapter);
 
-        trailersRecyclerView.addOnItemTouchListener(new RecyclerClickListener(getContext(), new RecyclerClickListener.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                String url = "https://www.youtube.com/watch?v=".concat(trailerList.get(position).getKey());
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(url));
-                startActivity(i);
-            }
-
+        trailersRecyclerView.addOnItemTouchListener(new RecyclerClickListener(getContext(), (view, position) -> {
+            String url = "https://www.youtube.com/watch?v=".concat(trailerList.get(position).getKey());
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse(url));
+            startActivity(i);
         }));
 
-        reviewsRecyclerView.addOnItemTouchListener(new RecyclerClickListener(getContext(), new RecyclerClickListener.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(reviewList.get(position).getUrl()));
-                startActivity(i);
-            }
+        reviewsRecyclerView.addOnItemTouchListener(new RecyclerClickListener(getContext(), (view, position) -> {
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse(reviewList.get(position).getUrl()));
+            startActivity(i);
         }));
         return rootView;
     }
@@ -209,94 +214,33 @@ public class MovieDetailFragment extends Fragment {
         return realm.where(MovieModel.class).contains("id", movieModel.getId()).findAll().size() != 0;
     }
 
-    private class FetchReviews extends AsyncTask<String, Void,
-            List<ReviewModel>> {
-
-
-        @Override
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected List<ReviewModel> doInBackground(String... params) {
-            final String sort = params[0];
-            App.getMovieClient().getMovieAPI().loadReviews(sort, BuildConfig.API_KEY).enqueue(new Callback<MovieAPI.Reviews>() {
-
-                @Override
-                public void onResponse(Response<MovieAPI.Reviews> response, Retrofit retrofit) {
-
-                    reviewList.addAll(response.body().results);
+    private void fetchReviews(final String id) {
+        movieService.loadReviews(id, BuildConfig.API_KEY)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(reviews -> {
+                    reviewList.addAll(reviews.results);
                     reviewAdapter.notifyDataSetChanged();
                     if (reviewList.isEmpty()) {
                         reviewsRecyclerView.setVisibility(View.INVISIBLE);
                         noReviewView.setVisibility(View.VISIBLE);
                     }
-                }
+                });
 
-                @Override
-                public void onFailure(Throwable t) {
-
-                }
-            });
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(List<ReviewModel> movieModels) {
-            super.onPostExecute(movieModels);
-        }
     }
 
-    private class FetchTrailers extends AsyncTask<String, Void,
-            List<TrailerModel>> {
-
-
-        @Override
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected List<TrailerModel> doInBackground(String... params) {
-            final String sort = params[0];
-            App.getMovieClient().getMovieAPI().loadTrailers(sort, BuildConfig.API_KEY).enqueue(new Callback<MovieAPI.Trailers>() {
-
-                @Override
-                public void onResponse(Response<MovieAPI.Trailers> response, Retrofit retrofit) {
-
-                    trailerList.addAll(response.body().results);
+    private void fetchTrailers(final String id) {
+        movieService.loadTrailers(id, BuildConfig.API_KEY)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(trailers -> {
+                    trailerList.addAll(trailers.results);
                     trailerAdapter.notifyDataSetChanged();
                     if (trailerList.isEmpty()) {
                         trailersRecyclerView.setVisibility(View.INVISIBLE);
                         noTrailerView.setVisibility(View.VISIBLE);
                     }
-                }
+                });
 
-                @Override
-                public void onFailure(Throwable t) {
-
-                }
-            });
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(List<TrailerModel> movieModels) {
-            super.onPostExecute(movieModels);
-        }
     }
-
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        assert connectivityManager != null;
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-
-
-
 }

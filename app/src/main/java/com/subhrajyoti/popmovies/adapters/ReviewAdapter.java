@@ -1,6 +1,5 @@
 package com.subhrajyoti.popmovies.adapters;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,12 +16,10 @@ import butterknife.ButterKnife;
 
 public class ReviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private Context context;
     private ArrayList<ReviewModel> data = new ArrayList<>();
 
 
-    public ReviewAdapter(Context context, ArrayList<ReviewModel> data) {
-        this.context = context;
+    public ReviewAdapter(ArrayList<ReviewModel> data) {
         this.data = data;
     }
 

@@ -1,4 +1,4 @@
-package com.subhrajyoti.popmovies;
+package com.subhrajyoti.popmovies.utils;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -8,14 +8,9 @@ import android.view.View;
 
 public class RecyclerClickListener implements RecyclerView.OnItemTouchListener {
     private OnItemClickListener mListener;
-
-    public interface OnItemClickListener {
-        void onItemClick(View view, int position);
-    }
-
     private GestureDetector mGestureDetector;
 
-    RecyclerClickListener(Context context, OnItemClickListener listener) {
+    public RecyclerClickListener(Context context, OnItemClickListener listener) {
         mListener = listener;
         mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -41,5 +36,9 @@ public class RecyclerClickListener implements RecyclerView.OnItemTouchListener {
     @Override
     public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
 
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(View view, int position);
     }
 }
