@@ -28,6 +28,7 @@ import com.subhrajyoti.popmovies.dagger.component.DaggerMovieActivityComponent;
 import com.subhrajyoti.popmovies.dagger.component.MovieActivityComponent;
 import com.subhrajyoti.popmovies.models.MovieModel;
 import com.subhrajyoti.popmovies.retrofit.MovieService;
+import com.subhrajyoti.popmovies.utils.Constants;
 import com.subhrajyoti.popmovies.utils.NetworkUtils;
 import com.subhrajyoti.popmovies.utils.RecyclerClickListener;
 
@@ -117,7 +118,7 @@ public class MovieDetailFragment extends Fragment {
 
         titleView.setText(movieModel.getoriginal_title());
 
-        picasso.load(BuildConfig.IMAGE_URL + "/w342" + movieModel.getposter_path() + "?api_key?=" + BuildConfig.API_KEY).placeholder(R.drawable.placeholder).error(R.drawable.placeholder).into(imageView);
+        picasso.load(Constants.IMAGE_URL + "/w342" + movieModel.getposter_path() + "?api_key?=" + BuildConfig.API_KEY).placeholder(R.drawable.placeholder).error(R.drawable.placeholder).into(imageView);
 
         rating.setText(Float.toString(movieModel.getvote_average()).concat("/10"));
         ratingBar.setMax(5);

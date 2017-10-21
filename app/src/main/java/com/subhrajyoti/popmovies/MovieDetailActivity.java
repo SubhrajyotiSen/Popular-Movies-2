@@ -8,7 +8,13 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
+import com.subhrajyoti.popmovies.application.MovieApplication;
+import com.subhrajyoti.popmovies.dagger.component.DaggerMovieActivityComponent;
+import com.subhrajyoti.popmovies.dagger.component.MovieActivityComponent;
 import com.subhrajyoti.popmovies.models.MovieModel;
+import com.subhrajyoti.popmovies.utils.Constants;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -18,6 +24,9 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     @BindView(R.id.toolImage)
     ImageView toolImage;
+
+    @Inject
+    Picasso picasso;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,11 +38,17 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         MovieModel movieModel =  getIntent().getParcelableExtra("movie");
 
+        MovieActivityComponent movieActivityComponent = DaggerMovieActivityComponent.builder()
+                .movieApplicationComponent(MovieApplication.get(this).getMovieApplicationComponent())
+                .build();
+
+        movieActivityComponent.injectMovieDetailsActivity(this);
+
         setSupportActionBar(toolbar);
         if(getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle("");
-            Picasso.with(this).load(BuildConfig.IMAGE_URL + "/w500" + movieModel.getBackdrop_path() + "?api_key?=" + BuildConfig.API_KEY).placeholder(R.drawable.placeholder).error(R.drawable.placeholder).into(toolImage);
+            picasso.load(Constants.IMAGE_URL + "/w500" + movieModel.getBackdrop_path() + "?api_key?=" + BuildConfig.API_KEY).placeholder(R.drawable.placeholder).error(R.drawable.placeholder).into(toolImage);
         }
 
 
