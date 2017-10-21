@@ -12,11 +12,8 @@ import com.subhrajyoti.popmovies.models.MovieModel;
 import com.subhrajyoti.popmovies.utils.URLUtils;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import javax.inject.Inject;
-
-import io.realm.RealmResults;
 
 public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -59,22 +56,6 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         data.clear();
         data.addAll(list);
         notifyDataSetChanged();
-    }
-
-    public void addAll(RealmResults<MovieModel> realmResults) {
-        Iterator<MovieModel> iterator = realmResults.iterator();
-        data.clear();
-        while (iterator.hasNext())
-            data.add(iterator.next());
-        notifyDataSetChanged();
-    }
-
-    public MovieModel get(int position) {
-        return data.get(position);
-    }
-
-    public ArrayList<MovieModel> getData() {
-        return data;
     }
 
     public static class MyItemHolder extends RecyclerView.ViewHolder {

@@ -21,11 +21,12 @@ import com.subhrajyoti.popmovies.dagger.app.ContextModule;
 import com.subhrajyoti.popmovies.models.MovieModel;
 import com.subhrajyoti.popmovies.utils.RecyclerClickListener;
 
+import java.util.ArrayList;
+
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.realm.Realm;
 
 
 public class MovieListActivity extends AppCompatActivity implements MovieListView {
@@ -38,13 +39,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieListVie
     ProgressBar progressBar;
 
     @Inject
-    MovieAdapter popularAdapter;
-    @Inject
-    MovieAdapter ratedAdapter;
-    @Inject
-    MovieAdapter favouriteAdapter;
-    @Inject
-    Realm realm;
+    MovieAdapter movieAdapter;
     @Inject
     MovieListPresenter movieListPresenter;
 
@@ -69,14 +64,13 @@ public class MovieListActivity extends AppCompatActivity implements MovieListVie
 
         movieListActivityComponent.injectMovieListActivity(this);
 
-        movieListPresenter.setupAdapter(popularAdapter, ratedAdapter, favouriteAdapter);
+        setupRecyclerView();
 
         movieListPresenter.handleActivityInstance(savedInstanceState);
 
         if (findViewById(R.id.movie_detail_container) != null) {
             movieListPresenter.setTwoPane();
         }
-        setupRecyclerView();
 
         movieListPresenter.addRealmListener();
 
@@ -154,8 +148,8 @@ public class MovieListActivity extends AppCompatActivity implements MovieListVie
     }
 
     @Override
-    public void setCorrectAdapter(MovieAdapter movieAdapter) {
-        recyclerView.setAdapter(movieAdapter);
+    public void showMovies(ArrayList<MovieModel> movieModels) {
+        movieAdapter.addAll(movieModels);
     }
 
     public void setupRecyclerView() {
@@ -166,7 +160,8 @@ public class MovieListActivity extends AppCompatActivity implements MovieListVie
         else
             gridLayoutManager.setSpanCount(3);
 
-        movieListPresenter.setCorrectAdapter();
+        recyclerView.setAdapter(movieAdapter);
+
         recyclerView.setLayoutManager(gridLayoutManager);
     }
 

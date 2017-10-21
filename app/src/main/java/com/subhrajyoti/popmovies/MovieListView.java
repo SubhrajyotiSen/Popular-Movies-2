@@ -1,7 +1,8 @@
 package com.subhrajyoti.popmovies;
 
-import com.subhrajyoti.popmovies.adapters.MovieAdapter;
 import com.subhrajyoti.popmovies.models.MovieModel;
+
+import java.util.ArrayList;
 
 public interface MovieListView {
 
@@ -13,5 +14,6 @@ public interface MovieListView {
 
     void setMenuItemChecked(int id);
 
-    void setCorrectAdapter(MovieAdapter movieAdapter);
+    void showMovies(ArrayList<MovieModel> movieModels);
+
 }

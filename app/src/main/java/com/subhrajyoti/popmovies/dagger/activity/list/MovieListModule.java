@@ -10,6 +10,7 @@ import com.subhrajyoti.popmovies.retrofit.MovieService;
 import dagger.Module;
 import dagger.Provides;
 
+@MovieListScope
 @Module
 public class MovieListModule {
 
@@ -30,4 +31,6 @@ public class MovieListModule {
     public MovieListPresenter movieListPresenter(MovieListView movieListView, MovieService movieService, Context context) {
         return new MovieListPresenter(movieListView, movieService, context);
     }
+
+
 }
