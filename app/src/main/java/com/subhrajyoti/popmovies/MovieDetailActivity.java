@@ -9,8 +9,8 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 import com.subhrajyoti.popmovies.application.MovieApplication;
-import com.subhrajyoti.popmovies.dagger.component.DaggerMovieActivityComponent;
-import com.subhrajyoti.popmovies.dagger.component.MovieActivityComponent;
+import com.subhrajyoti.popmovies.dagger.activity.details.DaggerMovieDetailsActivityComponent;
+import com.subhrajyoti.popmovies.dagger.activity.details.MovieDetailsActivityComponent;
 import com.subhrajyoti.popmovies.models.MovieModel;
 import com.subhrajyoti.popmovies.utils.Constants;
 
@@ -38,11 +38,11 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         MovieModel movieModel =  getIntent().getParcelableExtra("movie");
 
-        MovieActivityComponent movieActivityComponent = DaggerMovieActivityComponent.builder()
+        MovieDetailsActivityComponent movieDetailsActivityComponent = DaggerMovieDetailsActivityComponent.builder()
                 .movieApplicationComponent(MovieApplication.get(this).getMovieApplicationComponent())
                 .build();
 
-        movieActivityComponent.injectMovieDetailsActivity(this);
+        movieDetailsActivityComponent.injectMovieDetailsActivity(this);
 
         setSupportActionBar(toolbar);
         if(getSupportActionBar() != null){

@@ -1,9 +1,8 @@
-package com.subhrajyoti.popmovies.dagger.module;
+package com.subhrajyoti.popmovies.dagger.app;
 
 import android.content.Context;
 
 import com.squareup.picasso.Picasso;
-import com.subhrajyoti.popmovies.dagger.scope.MovieApplicationScope;
 
 import dagger.Module;
 import dagger.Provides;

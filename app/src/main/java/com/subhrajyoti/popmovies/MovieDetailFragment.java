@@ -24,8 +24,8 @@ import com.squareup.picasso.Picasso;
 import com.subhrajyoti.popmovies.adapters.ReviewAdapter;
 import com.subhrajyoti.popmovies.adapters.TrailerAdapter;
 import com.subhrajyoti.popmovies.application.MovieApplication;
-import com.subhrajyoti.popmovies.dagger.component.DaggerMovieActivityComponent;
-import com.subhrajyoti.popmovies.dagger.component.MovieActivityComponent;
+import com.subhrajyoti.popmovies.dagger.activity.details.DaggerMovieDetailsActivityComponent;
+import com.subhrajyoti.popmovies.dagger.activity.details.MovieDetailsActivityComponent;
 import com.subhrajyoti.popmovies.models.MovieModel;
 import com.subhrajyoti.popmovies.retrofit.MovieService;
 import com.subhrajyoti.popmovies.utils.Constants;
@@ -97,11 +97,11 @@ public class MovieDetailFragment extends Fragment {
             assert movieModel != null;
         }
 
-        MovieActivityComponent movieActivityComponent = DaggerMovieActivityComponent.builder()
+        MovieDetailsActivityComponent movieDetailsActivityComponent = DaggerMovieDetailsActivityComponent.builder()
                 .movieApplicationComponent(MovieApplication.get(getActivity()).getMovieApplicationComponent())
                 .build();
 
-        movieActivityComponent.injectMovieDetailsFragment(this);
+        movieDetailsActivityComponent.injectMovieDetailsFragment(this);
 
         if (NetworkUtils.isNetworkAvailable(getActivity())) {
             fetchReviews(movieModel.getId());

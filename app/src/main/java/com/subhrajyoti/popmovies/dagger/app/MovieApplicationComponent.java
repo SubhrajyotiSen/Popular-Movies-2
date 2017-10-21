@@ -1,9 +1,6 @@
-package com.subhrajyoti.popmovies.dagger.component;
+package com.subhrajyoti.popmovies.dagger.app;
 
 import com.squareup.picasso.Picasso;
-import com.subhrajyoti.popmovies.dagger.module.MovieServiceModule;
-import com.subhrajyoti.popmovies.dagger.module.PicassoModule;
-import com.subhrajyoti.popmovies.dagger.scope.MovieApplicationScope;
 import com.subhrajyoti.popmovies.retrofit.MovieService;
 
 import dagger.Component;

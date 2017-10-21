@@ -1,4 +1,4 @@
-package com.subhrajyoti.popmovies.dagger.module;
+package com.subhrajyoti.popmovies.dagger.app;
 
 import android.content.Context;
 

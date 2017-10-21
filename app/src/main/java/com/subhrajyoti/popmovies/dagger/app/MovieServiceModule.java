@@ -1,7 +1,6 @@
-package com.subhrajyoti.popmovies.dagger.module;
+package com.subhrajyoti.popmovies.dagger.app;
 
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import com.subhrajyoti.popmovies.dagger.scope.MovieApplicationScope;
 import com.subhrajyoti.popmovies.retrofit.MovieService;
 import com.subhrajyoti.popmovies.utils.Constants;
 
